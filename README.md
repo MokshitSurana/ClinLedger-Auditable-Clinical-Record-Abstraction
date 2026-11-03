@@ -1,4 +1,3 @@
-# Backbone — clinical abstraction prototype
 
 Turns a folder of behavioral-health documents into a small, auditable clinical
 ledger, then answers questions by computing over that ledger in Python. No model
