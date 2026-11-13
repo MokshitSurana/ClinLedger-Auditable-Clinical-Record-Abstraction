@@ -2,7 +2,7 @@
 
 Same documents, same reconciliation policy, same arithmetic. Only the
 front-end that turns text into claims changes. Reproduce with
-`python -m backbone compare`.
+`python -m clinledger compare`.
 
 Model under test: **openai/gpt-oss-120b** via `groq`, temperature 0, prompt `v3`.
 

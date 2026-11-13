@@ -1,4 +1,4 @@
--- Backbone clinical abstraction store.
+-- ClinLedger clinical abstraction store.
 -- Layer 1 = documents, Layer 2 = claims (what a document asserts),
 -- Layer 3 = events (reconciled real-world contacts) + decision log.
 -- No field in layer 3 is written without a row in `decisions` explaining why.

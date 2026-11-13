@@ -26,10 +26,10 @@ import time
 # run as `python scripts/scale_test.py` from the repository root
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
-from backbone import queries as Q
-from backbone import reconcile
-from backbone.ingest import ingest_dir
-from backbone.store import Store
+from clinledger import queries as Q
+from clinledger import reconcile
+from clinledger.ingest import ingest_dir
+from clinledger.store import Store
 
 DOCS = pathlib.Path("documents")
 NAMES = ["Rowan Mercer", "Dana Okonjo", "Pilar Vance", "Noor Halabi",

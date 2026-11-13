@@ -1,4 +1,4 @@
-# Backbone — design document
+# ClinLedger — design document
 
 A complete account of what was built, why each decision was made, what every
 file does, and what the measurements showed. The README is the short version
@@ -274,7 +274,7 @@ is only reproducible because the response is pinned.
 
 ## 6. The data model, table by table
 
-`backbone/schema.sql`, 14 tables. Layer 1 = documents, layer 2 = claims, layer 3
+`clinledger/schema.sql`, 14 tables. Layer 1 = documents, layer 2 = claims, layer 3
 = events plus the decision log.
 
 ### `documents`
@@ -446,49 +446,49 @@ checked by hand. This is the only module that produces a total.
 
 ## 8. Every file, and why it exists
 
-### `backbone/schema.sql` (187 lines)
+### `clinledger/schema.sql` (187 lines)
 The 14 tables of §6. `NOT NULL` on quote columns is a design constraint
 expressed in the schema rather than in code review.
 
-### `backbone/normalize.py` (105 lines)
+### `clinledger/normalize.py` (105 lines)
 Normalization for identity, hashing, and date parsing. `parse_date` **validates**
 — a document can say "February 30", and a service date that cannot exist must
 not enter the abstraction. The month-abbreviation table is built explicitly
 after an early bug produced February from `Jan14`.
 
-### `backbone/taxonomy.py` (262 lines)
+### `clinledger/taxonomy.py` (262 lines)
 All vocabularies and the authority policy as data:
 `SERVICE_SYNONYMS` (longest phrase wins), `DOC_CLASS_HINTS` (earliest hint
 wins), `ESTABLISHES_DELIVERY` (can this class prove care happened?),
 `FIELD_AUTHORITY` (per-field precedence). Changing a value here changes how the
 whole corpus reconciles, which is why rule ids are stored on every decision.
 
-### `backbone/intervals.py` (108 lines)
+### `clinledger/intervals.py` (108 lines)
 Interval algebra: `normalize`, `subtract`, `overlaps`, `present_minutes`,
 `week_key`. **Every duration in the system comes from here.** Nothing subtracts
 a flat break length. Also the week bucketing, configurable between Monday–Sunday
 and Sunday–Saturday.
 
-### `backbone/store.py` (239 lines)
+### `clinledger/store.py` (239 lines)
 Thin SQLite layer; deliberately contains no policy. `close()` checkpoints the
 WAL so the abstraction is one portable file.
 
-### `backbone/extract/base.py` (60 lines)
+### `clinledger/extract/base.py` (60 lines)
 The `Claim` dataclass and `DocFacts`, shared by both extractors — which is what
 makes them interchangeable and therefore comparable. `Claim.verify()` is the
 offset/quote check.
 
-### `backbone/extract/rules.py` (994 lines)
+### `clinledger/extract/rules.py` (994 lines)
 The deterministic extractor of §7. The largest file, and the one most specific
 to this corpus's vocabulary — which is also the limitation named in §16.
 
-### `backbone/extract/llm.py` (552 lines)
+### `clinledger/extract/llm.py` (552 lines)
 Both model modes, the prompts, quote verification, the persistent cache, usage
 accounting, and the optional query router. The prompts forbid arithmetic
 explicitly ("Do NOT subtract breaks, do NOT total intervals, do NOT convert to
 minutes") because the model will otherwise do it unasked — observed, §14.
 
-### `backbone/provider.py` (299 lines)
+### `clinledger/provider.py` (299 lines)
 Groq and Anthropic over `urllib`, so the model path adds no dependency. Also:
 `.env` loading (read with `utf-8-sig`, because PowerShell writes a BOM), a
 `User-Agent` (Cloudflare rejects `Python-urllib` with error 1010), a
@@ -496,40 +496,40 @@ Groq and Anthropic over `urllib`, so the model path adds no dependency. Also:
 than discovering the free-tier limit by being refused, and retry that honours
 the provider's own `try again in Ns` hint.
 
-### `backbone/reconcile.py` (629 lines)
+### `clinledger/reconcile.py` (629 lines)
 Matching and resolution, §7 and §9. The policy switch lives here.
 
-### `backbone/queries.py` (676 lines)
+### `clinledger/queries.py` (676 lines)
 The query library. Beyond the obvious counts: `consecutive_below` evaluates
 under both the minimum and maximum readings of the record so that patients whose
 inclusion *depends on unresolved documentation* fall out of the comparison;
 `integrity` runs the wall-clock check; `added_contacts` surfaces contacts the
 record itself describes as added, with the sentence giving the reason.
 
-### `backbone/router.py` (189 lines)
+### `clinledger/router.py` (189 lines)
 Question → function + parameters. Deterministic intent keywords, patient
 resolution by MRN/name/given name, date-range extraction, and a corpus-year
 fallback for questions that omit the year ("the care on January 19 and January
 21" — which is how the dev questions are phrased).
 
-### `backbone/render.py` (315 lines)
+### `clinledger/render.py` (315 lines)
 Result → reviewable Markdown. Formats only; never computes, and never prints a
 figure not present in the result it was handed. ASCII output, because execution
 logs are captured on terminals that are not always UTF-8.
 
-### `backbone/cli.py` (334 lines)
+### `clinledger/cli.py` (334 lines)
 `build`, `add`, `ingest`, `reconcile`, `answer`, `ask`, `trace`, `export`,
 `bench`, `experiment`, `compare`, `models`, `verify`.
 
-### `backbone/bench.py` (170 lines)
+### `clinledger/bench.py` (170 lines)
 Measured performance: cold build, warm re-ingest, single-document update, query
 latency with repeats, storage with row counts, model usage.
 
-### `backbone/experiment.py` (165 lines)
+### `clinledger/experiment.py` (165 lines)
 The conflict-policy A/B. Builds the corpus under both policies and writes the
 report, including the detection of the wall-clock violation.
 
-### `backbone/compare.py` (344 lines)
+### `clinledger/compare.py` (344 lines)
 The extractor disagreement harness. Builds twice, diffs the event table across
 six fields per event, and scores each disagreement against the hand-verified
 ledger so the output is "rules right in N, model right in M". Also compares
@@ -539,7 +539,7 @@ material error behind identical totals (§14).
 ### `tests/gold_ledger.json`
 The hand-computed ledger as data. It lives outside the package deliberately:
 `compare.py` scores extractor disagreements against it, and putting it in
-`backbone/` would encode patient facts in the implementation. A test asserts it
+`clinledger/` would encode patient facts in the implementation. A test asserts it
 matches the assertions in `test_gold.py`, so the two cannot drift.
 
 ### `tests/test_gold.py` and `tests/test_units.py`
@@ -690,7 +690,7 @@ come from the function.
 ## 12. The audit chain
 
 The requirement is that a reviewer can trace a finding back to source passages.
-`python -m backbone trace "HG-M042|HG-E110"`:
+`python -m clinledger trace "HG-M042|HG-E110"`:
 
 ```
 minutes: 60
@@ -727,7 +727,7 @@ every build, and §14 is why.
 
 ## 13. What was measured
 
-Measured on this machine (Windows 11, Python 3.13.5). `python -m backbone bench`
+Measured on this machine (Windows 11, Python 3.13.5). `python -m clinledger bench`
 → `out/benchmark.json`.
 
 | | measured |
@@ -775,7 +775,7 @@ per-patient queries unchanged, ~34 s collection-wide queries as written today.
 
 ### Experiment 1 — conflict-resolution policy
 
-`docs/experiment-conflict-policy.md`, `python -m backbone experiment`. Same
+`docs/experiment-conflict-policy.md`, `python -m clinledger experiment`. Same
 documents, same extractor, same query code; only the policy changes.
 
 | | explicit-correction (shipped) | latest-document |
@@ -807,7 +807,7 @@ an A/B can actually separate before trusting it.
 
 ### Experiment 2 — deterministic vs model extraction
 
-`docs/experiment-extractor-comparison.md`, `python -m backbone compare`. Model
+`docs/experiment-extractor-comparison.md`, `python -m clinledger compare`. Model
 under test: **`openai/gpt-oss-120b`** via Groq (the strongest model available on
 the key), temperature 0, prompt `v3`, identical reconciliation and arithmetic on
 both sides.
@@ -880,7 +880,7 @@ configuration lesson I only have because the harness measured it.
 
 ### Experiment 2b — the hybrid mode, which is the one that ships
 
-`docs/experiment-extractor-hybrid.md`, `python -m backbone compare
+`docs/experiment-extractor-hybrid.md`, `python -m clinledger compare
 --extractor-b llm`. Same model, same reconciliation, but the model sees only
 prose: 25 of 31 documents, the other 6 skipped because their class carries no
 clinical narrative.

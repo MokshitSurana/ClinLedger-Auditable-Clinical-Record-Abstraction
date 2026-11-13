@@ -196,7 +196,7 @@ def _report(a: dict, b: dict, diffs: list[dict], other: str) -> str:
     L = ["# Tested design decision: deterministic vs model extraction", "",
          "Same documents, same reconciliation policy, same arithmetic. Only the",
          "front-end that turns text into claims changes. Reproduce with",
-         "`python -m backbone compare`.", "",
+         "`python -m clinledger compare`.", "",
          f"Model under test: **{m.get('model') or other}** via "
          f"`{m.get('provider', 'n/a')}`, temperature 0, "
          f"prompt `{m.get('prompt_version', '')}`.", "",

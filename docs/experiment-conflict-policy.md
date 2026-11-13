@@ -1,7 +1,7 @@
 # Tested design decision: conflict-resolution policy
 
 Same documents, same extractor, same query code. Only the policy in
-`reconcile.py` changes. Reproduce with `python -m backbone experiment`.
+`reconcile.py` changes. Reproduce with `python -m clinledger experiment`.
 
 - **explicit-correction (shipped)**: only an entry naming the record and field it replaces supersedes that field.
 - **latest-document**: the most recently received document wins.

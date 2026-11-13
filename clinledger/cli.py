@@ -1,13 +1,13 @@
 """Command line interface.
 
-    python -m backbone build documents/           ingest + reconcile (first run)
-    python -m backbone answer questions.json      answer from the saved abstraction
-    python -m backbone ask "<question>"           one new question, no re-processing
-    python -m backbone trace '<MRN>|<ENCOUNTER>'    follow one event to its sources
-    python -m backbone export                     dump the abstraction as JSON
-    python -m backbone bench                      measured performance report
-    python -m backbone experiment                 the conflict-policy A/B
-    python -m backbone verify                     integrity + regression checks
+    python -m clinledger build documents/           ingest + reconcile (first run)
+    python -m clinledger answer questions.json      answer from the saved abstraction
+    python -m clinledger ask "<question>"           one new question, no re-processing
+    python -m clinledger trace '<MRN>|<ENCOUNTER>'    follow one event to its sources
+    python -m clinledger export                     dump the abstraction as JSON
+    python -m clinledger bench                      measured performance report
+    python -m clinledger experiment                 the conflict-policy A/B
+    python -m clinledger verify                     integrity + regression checks
 """
 from __future__ import annotations
 
@@ -103,7 +103,7 @@ def cmd_answer(args) -> int:
     qs = json.loads(pathlib.Path(args.questions).read_text(encoding="utf-8"))
     out = [f"# Answers\n",
            f"Source: `{args.questions}`  ·  abstraction: `{args.db}`  ·  "
-           f"all figures computed in `backbone.queries` from the reconciled "
+           f"all figures computed in `clinledger.queries` from the reconciled "
            f"event table.\n"]
     machine = []
     for item in qs:
@@ -276,7 +276,7 @@ def _global_flags(ap) -> None:
 
 
 def main(argv=None) -> int:
-    p = argparse.ArgumentParser(prog="backbone", description=__doc__,
+    p = argparse.ArgumentParser(prog="clinledger", description=__doc__,
                                formatter_class=argparse.RawDescriptionHelpFormatter)
     _global_flags(p)
     # The same flags are attached to every subcommand through a parent parser,

@@ -1,19 +1,19 @@
-Backbone execution log
-started      2026-10-03T18:36:51-05:00
+ClinLedger execution log
+started      2026-11-13T08:15:50-06:00
 python       Python 3.13.5
-platform     MINGW64_NT-10.0-26200 3.6.10-710e5275.x86_64
+platform     MINGW64_NT-10.0-26200 3.6.10-5a1665c8.x86_64
 documents    31 files
 
 =============================================================
-$ python -m backbone build documents
+$ python -m clinledger build documents
 -------------------------------------------------------------
-ingest    31/31 files, 99 claims, 0.15s
+ingest    31/31 files, 99 claims, 0.25s
 reconcile HG-M042: 20 events (12 therapy, 1 disputed), 0.01s
 integrity ok
 abstraction out/clinical.db  284.0 KiB
 
 =============================================================
-$ python -m backbone verify
+$ python -m clinledger verify
 -------------------------------------------------------------
 test_episode_and_plan_read_from_the_record (test_gold.GoldLedger.test_episode_and_plan_read_from_the_record) ... ok
 test_every_counted_event_has_a_decision_trail (test_gold.GoldLedger.test_every_counted_event_has_a_decision_trail) ... ok
@@ -125,46 +125,46 @@ test_empty_weeks_are_not_met_and_count_as_consecutive (test_units.WeeklyCoverage
 test_every_week_in_the_episode_appears (test_units.WeeklyCoverage.test_every_week_in_the_episode_appears) ... ok
 
 ----------------------------------------------------------------------
-Ran 108 tests in 3.091s
+Ran 108 tests in 6.942s
 
 OK
 All integrity checks pass (quote offsets verified; no counted contacts overlap in wall-clock time).
 
 =============================================================
-$ python -m backbone answer questions.json
+$ python -m clinledger answer questions.json
 -------------------------------------------------------------
 wrote out/answers.md and out\answers.json
 
 =============================================================
-$ python -m backbone bench --repeat 5
+$ python -m clinledger bench --repeat 5
 -------------------------------------------------------------
 corpus              31 documents, 48.9 KiB
-cold build          0.141s  (ingest 0.136s = 4.39 ms/doc, reconcile 0.005s)
+cold build          0.261s  (ingest 0.252s = 8.13 ms/doc, reconcile 0.008s)
                     99 claims -> 20 events (12 therapy, 1 disputed)
-warm re-ingest      0.009s, 0 re-extracted / 31 unchanged
-one new document    0.009s (extract + reconcile that patient only)
+warm re-ingest      0.017s, 0 re-extracted / 31 unchanged
+one new document    0.018s (extract + reconcile that patient only)
 abstraction size    284.0 KiB (9381 B/document, 5.8x the source text)
 query latency (median of repeats)
-  session_counts (one patient)           0.84 ms   [0.80-1.13]
-  minutes by week (one patient)          0.62 ms   [0.60-0.70]
-  compliance (one patient)               0.79 ms   [0.78-0.89]
-  day_detail (two dates)                 0.18 ms   [0.17-0.20]
-  progress (one patient)                 1.03 ms   [1.02-1.25]
-  consecutive_below (all patients)       0.85 ms   [0.80-0.90]
-  trace (one event)                      0.06 ms   [0.05-0.09]
-  integrity (all patients)               1.55 ms   [1.50-1.63]
-  end_to_end_nl_question                 1.05 ms   [0.18-2.65]
+  session_counts (one patient)           1.44 ms   [1.42-1.95]
+  minutes by week (one patient)          1.11 ms   [1.08-1.22]
+  compliance (one patient)               1.61 ms   [1.42-2.00]
+  day_detail (two dates)                 0.40 ms   [0.37-0.48]
+  progress (one patient)                 2.25 ms   [1.98-2.75]
+  consecutive_below (all patients)       1.50 ms   [1.44-1.58]
+  trace (one event)                      0.11 ms   [0.10-0.17]
+  integrity (all patients)               3.39 ms   [2.73-3.64]
+  end_to_end_nl_question                 1.92 ms   [0.33-4.93]
 model usage         the measured build makes no model calls: the rules extractor is the default and is deterministic. `cached_extraction_usage` is what the optional model path cost when it was run (see docs/experiment-extractor-comparison.md).
 
 wrote out/benchmark.json
 
 =============================================================
-$ python -m backbone experiment
+$ python -m clinledger experiment
 -------------------------------------------------------------
 # Tested design decision: conflict-resolution policy
 
 Same documents, same extractor, same query code. Only the policy in
-`reconcile.py` changes. Reproduce with `python -m backbone experiment`.
+`reconcile.py` changes. Reproduce with `python -m clinledger experiment`.
 
 - **explicit-correction (shipped)**: only an entry naming the record and field it replaces supersedes that field.
 - **latest-document**: the most recently received document wins.
@@ -255,16 +255,16 @@ Unlike the overlap, this one leaves no trace in the output at all. It is the arg
 wrote docs/experiment-conflict-policy.md
 
 =============================================================
-$ python -m backbone export
+$ python -m clinledger export
 -------------------------------------------------------------
 wrote out/abstraction.json (120.3 KiB)
 
 --- restart: a new process answers new questions from the saved file ---
 
 =============================================================
-$ python -m backbone ask How many group therapy sessions did Rowan attend?
+$ python -m clinledger ask How many group therapy sessions did Rowan attend?
 -------------------------------------------------------------
-[session_counts(mrn='HG-M042', start='2026-01-05', end='2026-01-30')  4 ms  router=rules]
+[session_counts(mrn='HG-M042', start='2026-01-05', end='2026-01-30')  7 ms  router=rules]
 
 **12 therapy sessions** on **11 distinct days** (2026-01-05 to 2026-01-30).
 
@@ -337,9 +337,9 @@ Service types the plan counts: family_therapy, group_therapy, individual_therapy
 - [RULE-PRES-02] draft_note cannot establish that care was delivered (BH-D112)
 
 =============================================================
-$ python -m backbone ask Did Rowan meet the minute goal in the week of January 12, 2026?
+$ python -m clinledger ask Did Rowan meet the minute goal in the week of January 12, 2026?
 -------------------------------------------------------------
-[compliance(mrn='HG-M042', start='2026-01-12', end='2026-01-18')  3 ms  router=rules]
+[compliance(mrn='HG-M042', start='2026-01-12', end='2026-01-18')  5 ms  router=rules]
 
 **Goal as documented in the treatment plan**
 
@@ -360,9 +360,9 @@ $ python -m backbone ask Did Rowan meet the minute goal in the week of January 1
 - week 2026-01-12..2026-01-18 therapy_minutes: 120 >= 150 -> NOT_MET
 
 =============================================================
-$ python -m backbone ask Which patients had two consecutive weeks below the plan requirement?
+$ python -m clinledger ask Which patients had two consecutive weeks below the plan requirement?
 -------------------------------------------------------------
-[consecutive_below(mrn=None, n=2, start=None, end=None)  3 ms  router=rules]
+[consecutive_below(mrn=None, n=2, start=None, end=None)  6 ms  router=rules]
 
 **Patients with 2 or more consecutive weeks below the plan requirement**
 
@@ -400,9 +400,9 @@ $ python -m backbone ask Which patients had two consecutive weeks below the plan
 - `HG-M042`: 2026-01-05=NOT_MET(140min,3d), 2026-01-12=NOT_MET(120min,2d), 2026-01-19=MET(180min,3d), 2026-01-26=CANNOT_DETERMINE(145-155min,3d)
 
 =============================================================
-$ python -m backbone ask Reconstruct the care on January 26, 2026
+$ python -m clinledger ask Reconstruct the care on January 26, 2026
 -------------------------------------------------------------
-[day_detail(mrn='HG-M042', dates=['2026-01-26'])  3 ms  router=rules]
+[day_detail(mrn='HG-M042', dates=['2026-01-26'])  4 ms  router=rules]
 
 WARNING: the question does not name a patient; answered for the only patient in the collection (HG-M042)
 
@@ -422,9 +422,9 @@ Wall-clock check: no two counted contacts overlap in time.
 - 2026-01-26: HG-E115 40 = 40-50 min
 
 =============================================================
-$ python -m backbone ask How did the care change before and after a treatment-plan change?
+$ python -m clinledger ask How did the care change before and after a treatment-plan change?
 -------------------------------------------------------------
-[plan_change_comparison(mrn='HG-M042', change_date=None)  2 ms  router=rules]
+[plan_change_comparison(mrn='HG-M042', change_date=None)  4 ms  router=rules]
 
 WARNING: the question does not name a patient; answered for the only patient in the collection (HG-M042)
 
@@ -433,7 +433,7 @@ WARNING: the question does not name a patient; answered for the only patient in 
 The comparison function is available for any date, so a plan amendment in a later drop is handled by the same code path; with a single plan period in force there is nothing to compare across.
 
 =============================================================
-$ python -m backbone trace HG-M042|HG-E115
+$ python -m clinledger trace HG-M042|HG-E115
 -------------------------------------------------------------
 **HG-M042|HG-E115** -- 2026-01-26 individual_therapy
 - occurred: yes; patient present: yes
@@ -458,7 +458,7 @@ $ python -m backbone trace HG-M042|HG-E115
 --- idempotence: the same document again, and a re-stamped copy ---
 
 =============================================================
-$ python -m backbone add out/tmpdup/resent_copy.txt
+$ python -m clinledger add out/tmpdup/resent_copy.txt
 -------------------------------------------------------------
 {
  "status": "exact_duplicate",
@@ -466,10 +466,10 @@ $ python -m backbone add out/tmpdup/resent_copy.txt
  "claims": 0,
  "duplicate_of": "BH-D102_original_attendance_2026-01-19.txt"
 }
-0.003s
+0.005s
 
 =============================================================
-$ python -m backbone add out/tmpdup/faxed_copy.txt
+$ python -m clinledger add out/tmpdup/faxed_copy.txt
 -------------------------------------------------------------
 {
  "status": "normalized_duplicate",
@@ -477,12 +477,12 @@ $ python -m backbone add out/tmpdup/faxed_copy.txt
  "claims": 0,
  "duplicate_of": "BH-D102_original_attendance_2026-01-19.txt"
 }
-0.003s
+0.006s
 
 =============================================================
-$ python -m backbone ask How many therapy minutes did Rowan receive in total?
+$ python -m clinledger ask How many therapy minutes did Rowan receive in total?
 -------------------------------------------------------------
-[minutes(mrn='HG-M042', start='2026-01-05', end='2026-01-30')  4 ms  router=rules]
+[minutes(mrn='HG-M042', start='2026-01-05', end='2026-01-30')  6 ms  router=rules]
 
 **Total patient-present therapy: 585-595 minutes (9.75-9.92 hours).**
 Weeks are mon–sun.
@@ -540,13 +540,13 @@ Weeks are mon–sun.
     - BH-D110 [241:303] "Actual patient psychotherapy contact: 09:00–09:50, 50 minutes."
 
 =============================================================
-$ python -m backbone ask which duplicate documents were detected?
+$ python -m clinledger ask which duplicate documents were detected?
 -------------------------------------------------------------
-[duplicates()  2 ms  router=rules]
+[duplicates()  5 ms  router=rules]
 
 | file | resolved to | kind |
 |---|---|---|
 | out\tmpdup\faxed_copy.txt | BH-D102 | normalized_duplicate |
 | out\tmpdup\resent_copy.txt | BH-D102 | exact_duplicate |
 
-finished     2026-10-03T18:37:02-05:00
+finished     2026-11-13T08:16:09-06:00

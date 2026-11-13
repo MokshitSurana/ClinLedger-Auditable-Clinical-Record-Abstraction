@@ -26,7 +26,7 @@ _loaded = False
 
 # Groq sits behind Cloudflare, which rejects urllib's default
 # "Python-urllib/x.y" user agent with error 1010. Identify the client properly.
-UA = "backbone-clinical-abstraction/1.1 (+https://github.com/; python-stdlib)"
+UA = "clinledger-clinical-abstraction/1.1 (+https://github.com/; python-stdlib)"
 _BASE_HEADERS = {"User-Agent": UA, "Accept": "application/json"}
 
 # Free tiers meter tokens per minute, so a 31-document corpus will hit the

@@ -9,7 +9,7 @@ building with llm (provider=groq model=openai/gpt-oss-120b) ...
 
 Same documents, same reconciliation policy, same arithmetic. Only the
 front-end that turns text into claims changes. Reproduce with
-`python -m backbone compare`.
+`python -m clinledger compare`.
 
 Model under test: **llm** via `n/a`, temperature 0, prompt ``.
 

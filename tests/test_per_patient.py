@@ -12,11 +12,11 @@ import shutil
 import tempfile
 import unittest
 
-from backbone import intervals as iv
-from backbone import queries as Q
-from backbone import reconcile, render, router
-from backbone.ingest import ingest_dir
-from backbone.store import Store
+from clinledger import intervals as iv
+from clinledger import queries as Q
+from clinledger import reconcile, render, router
+from clinledger.ingest import ingest_dir
+from clinledger.store import Store
 
 HDR = "Harbor Grove Behavioral Health"
 

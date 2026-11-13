@@ -1,4 +1,4 @@
-# Backbone — clinical abstraction prototype
+# ClinLedger — clinical abstraction prototype
 
 Turns a pile of behavioral-health documents into a small, auditable clinical
 ledger, then answers questions by computing over that ledger in Python. The
@@ -9,10 +9,10 @@ Python 3.11+, standard library only. SQLite is the store. No network access is
 required for anything in this README.
 
 ```bash
-python -m backbone build documents          # first run: ingest + reconcile
-python -m backbone answer questions.json    # answer the five dev questions
-python -m backbone ask "How many group sessions did Rowan attend in week 2?"
-python -m backbone verify                   # integrity checks + 108 tests
+python -m clinledger build documents          # first run: ingest + reconcile
+python -m clinledger answer questions.json    # answer the five dev questions
+python -m clinledger ask "How many group sessions did Rowan attend in week 2?"
+python -m clinledger verify                   # integrity checks + 108 tests
 
 bash scripts/run_all.sh                     # everything, logged to out/logs/execution.log
 ```
@@ -21,8 +21,8 @@ Optional, to enable and test the model path (copy `.env.example` to `.env` and
 add one key):
 
 ```bash
-python -m backbone models                   # what this key can actually run
-python -m backbone compare                  # rules vs model, scored against the ledger
+python -m clinledger models                   # what this key can actually run
+python -m clinledger compare                  # rules vs model, scored against the ledger
 ```
 
 Nothing to install: the default path is standard library only, run from the
@@ -36,7 +36,7 @@ experiments, and a build chronology including every bug found and what it
 changed.
 
 Everything below that is a number was measured on this machine (Windows 11,
-Python 3.13.5) by `python -m backbone bench` and `python scripts/scale_test.py`.
+Python 3.13.5) by `python -m clinledger bench` and `python scripts/scale_test.py`.
 Figures that are extrapolated say so.
 
 ---
@@ -129,15 +129,15 @@ parameters instead; the numbers still come from the function. The abstraction is
 read from disk, so a new question costs ~1 ms and no reprocessing:
 
 ```bash
-python -m backbone ask "did Rowan meet the minute goal in the week of Jan 12?"
-python -m backbone ask "which patients had three consecutive weeks below?"
-python -m backbone trace "HG-M042|HG-E110"      # one event, all the way down
+python -m clinledger ask "did Rowan meet the minute goal in the week of Jan 12?"
+python -m clinledger ask "which patients had three consecutive weeks below?"
+python -m clinledger trace "HG-M042|HG-E110"      # one event, all the way down
 ```
 
 ### Adding documents later
 
 ```bash
-python -m backbone add documents/new_note.txt   # ~10 ms: extract + reconcile that patient only
+python -m clinledger add documents/new_note.txt   # ~10 ms: extract + reconcile that patient only
 ```
 
 Directory ingest reads any text-bearing extension (`.txt`, `.md`, `.csv`, …),
@@ -156,7 +156,7 @@ copy with new fax furniture and asserts that no clinical number moves.
 ## 2. Answers to the five development questions
 
 Full output with sources: [`out/answers.md`](out/answers.md) (machine-readable in
-`out/answers.json`). Reproduce with `python -m backbone answer questions.json`.
+`out/answers.json`). Reproduce with `python -m clinledger answer questions.json`.
 
 **DEV-01** — 12 therapy sessions on 11 distinct days: 5 individual, 5 group,
 2 family. Eight encounters are excluded with a stated reason (two medication
@@ -213,7 +213,7 @@ used as progress evidence and labelled by reporter (`patient` / `clinician` /
 
 **How should conflicting records be resolved?** Full write-up and reproduction:
 [`docs/experiment-conflict-policy.md`](docs/experiment-conflict-policy.md)
-(`python -m backbone experiment`). Both policies are real code paths selected by
+(`python -m clinledger experiment`). Both policies are real code paths selected by
 `--policy`, run over the same corpus with the same extractor.
 
 | | explicit-correction (shipped) | latest-document |
@@ -244,7 +244,7 @@ value.
 
 ## 4. Measured performance
 
-`python -m backbone bench` → [`out/benchmark.json`](out/benchmark.json).
+`python -m clinledger bench` → [`out/benchmark.json`](out/benchmark.json).
 31 documents, 48.9 KiB of source text.
 
 | | measured |
@@ -366,7 +366,7 @@ what the first two surface rather than by imagination.
 
 ## 6. Model names, settings, assistance, runtime and cost
 
-**Shipped default path: no model.** `python -m backbone build documents` makes
+**Shipped default path: no model.** `python -m clinledger build documents` makes
 zero model calls, costs $0.00, and is byte-reproducible. Every number in this
 README and in `out/answers.md` was produced that way.
 
@@ -448,7 +448,7 @@ them from the documents.
 ## 7. Layout
 
 ```
-backbone/
+clinledger/
   schema.sql        documents, claims, events, event_claims, decisions, ...
   normalize.py      normalization for identity, date parsing and validation
   taxonomy.py       service synonyms, document classes, authority tables

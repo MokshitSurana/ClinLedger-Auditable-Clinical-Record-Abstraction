@@ -1,6 +1,6 @@
 # The database, table by table
 
-Every table in `backbone/schema.sql`: what it holds, which code writes it, which
+Every table in `clinledger/schema.sql`: what it holds, which code writes it, which
 code reads it, why every column exists, why it is shaped the way it is, and what
 breaks if it is not there.
 
@@ -85,7 +85,7 @@ and so do not belong in `events`.
 
 ## Who may touch the database
 
-`backbone/store.py` is the only module that writes SQL. Nothing else in the
+`clinledger/store.py` is the only module that writes SQL. Nothing else in the
 codebase contains an `INSERT`, `UPDATE` or `DELETE` — with one deliberate
 exception noted below. The rule exists so that every write is a named method
 with a docstring, reviewable in one file, rather than SQL scattered through
@@ -1397,7 +1397,7 @@ created_at TEXT NOT NULL
 ```
 
 **Written and read by** `Store.cache_get` / `Store.cache_put`, called from
-`backbone/extract/llm.py`.
+`clinledger/extract/llm.py`.
 
 ### Why the cache key is a hash of five things
 
@@ -1565,7 +1565,7 @@ plan's own wording.
 ## Row counts on the supplied corpus
 
 31 documents, one patient, 276 KiB on disk, from a pristine
-`python -m backbone build documents` into a fresh file.
+`python -m clinledger build documents` into a fresh file.
 
 These differ from a database the test suite has touched. `tests/` writes
 duplicate copies under `out/tmpdup/` to exercise dedupe, which adds

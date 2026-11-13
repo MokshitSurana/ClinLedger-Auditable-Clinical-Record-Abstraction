@@ -11,7 +11,7 @@
               and never resolves a conflict: `intervals.py` does the arithmetic
               and `reconcile.py` applies the authority policy, exactly as for the
               rules path. This mode exists so the two front-ends can be diffed
-              against each other (`python -m backbone compare`).
+              against each other (`python -m clinledger compare`).
 
 In both modes every string the model returns must be found character-for-
 character in the source document, or the claim is dropped and counted. That

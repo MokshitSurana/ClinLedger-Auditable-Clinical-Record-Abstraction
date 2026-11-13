@@ -12,11 +12,11 @@ import shutil
 import tempfile
 import unittest
 
-from backbone import intervals as iv
-from backbone import queries as Q
-from backbone import reconcile, render, router
-from backbone.ingest import ingest_dir, ingest_path
-from backbone.store import Store
+from clinledger import intervals as iv
+from clinledger import queries as Q
+from clinledger import reconcile, render, router
+from clinledger.ingest import ingest_dir, ingest_path
+from clinledger.store import Store
 
 HDR = "Harbor Grove Behavioral Health"
 
@@ -178,7 +178,7 @@ class TimeFormats(unittest.TestCase):
         self.assertEqual(iv.total([iv.mk("23:30", "00:15")]), 45)
 
     def test_extractor_reads_the_new_phrasings(self):
-        from backbone.extract import rules
+        from clinledger.extract import rules
         doc = (f"Document ID: RV-T1\n{HDR} | Coping skills group\n"
                "Ada Sorensen | DOB 1991-02-02 | MRN HG-M603 | Encounter HG-E620\n"
                "Service date 2026-06-01 | Group scheduled 10:00 AM-11:30 AM\n"
@@ -254,7 +254,7 @@ class SmallerIssues(unittest.TestCase):
         st.close()
 
     def test_correction_without_an_old_value_is_not_applied_to_every_interval(self):
-        from backbone.reconcile import _apply_corrections
+        from clinledger.reconcile import _apply_corrections
         claim = {"intervals": [["13:00", "13:20"], ["13:30", "13:55"]]}
         corr = [{"claim_id": "c1",
                  "fields": {"target_field": "departure", "new_value": "14:00",
@@ -267,7 +267,7 @@ class SmallerIssues(unittest.TestCase):
         self.assertTrue(log and "ambiguous" in log[0][1])
 
     def test_correction_with_an_old_value_targets_only_that_interval(self):
-        from backbone.reconcile import _apply_corrections
+        from clinledger.reconcile import _apply_corrections
         claim = {"intervals": [["13:00", "13:20"], ["13:30", "13:55"]]}
         corr = [{"claim_id": "c1",
                  "fields": {"target_field": "departure", "new_value": "14:00",
@@ -335,7 +335,7 @@ class SmallerIssues(unittest.TestCase):
         shutil.rmtree(tmp, ignore_errors=True)
 
     def test_narrative_date_prefers_the_encounter_header_line(self):
-        from backbone.extract import rules
+        from clinledger.extract import rules
         # the signature date comes first in the text, but the encounter line
         # carries the service date
         doc = (f"Document ID: RV-D1\n{HDR} | Individual psychotherapy\n"

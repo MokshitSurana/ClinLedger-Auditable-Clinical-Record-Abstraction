@@ -1,13 +1,13 @@
 # Answers
 
-Source: `questions.json`  ·  abstraction: `out/clinical.db`  ·  all figures computed in `backbone.queries` from the reconciled event table.
+Source: `questions.json`  ·  abstraction: `out/clinical.db`  ·  all figures computed in `clinledger.queries` from the reconciled event table.
 
 
 ## DEV-01
 
 > For January 5–30, 2026, how many therapy sessions did Rowan attend, by service type and in total, and on how many distinct days? Provide a reviewable abstraction with source support and explain records that could lead to duplicate or ineligible counts.
 
-*Resolved to* `session_counts(mrn='HG-M042', start='2026-01-05', end='2026-01-30')` *in 3 ms (router: rules).*
+*Resolved to* `session_counts(mrn='HG-M042', start='2026-01-05', end='2026-01-30')` *in 7 ms (router: rules).*
 
 **12 therapy sessions** on **11 distinct days** (2026-01-05 to 2026-01-30).
 
@@ -83,7 +83,7 @@ Service types the plan counts: family_therapy, group_therapy, individual_therapy
 
 > How many therapy minutes and hours did Rowan actually receive during the review period, overall and for each Monday–Sunday week? Show calculations or supporting detail, and report any conclusion the available documents do not settle.
 
-*Resolved to* `minutes(mrn='HG-M042', start='2026-01-05', end='2026-01-30')` *in 2 ms (router: rules).*
+*Resolved to* `minutes(mrn='HG-M042', start='2026-01-05', end='2026-01-30')` *in 3 ms (router: rules).*
 
 **Total patient-present therapy: 585-595 minutes (9.75-9.92 hours).**
 Weeks are mon–sun.
@@ -144,7 +144,7 @@ Weeks are mon–sun.
 
 > For each week, did the delivered therapy meet the goal documented in Rowan’s treatment plan? State the goal, the relevant therapy-day and minute totals, and whether it was met, not met, or cannot be determined from the current record.
 
-*Resolved to* `compliance(mrn='HG-M042', start='2026-01-05', end='2026-01-30')` *in 1 ms (router: rules).*
+*Resolved to* `compliance(mrn='HG-M042', start='2026-01-05', end='2026-01-30')` *in 2 ms (router: rules).*
 
 **Goal as documented in the treatment plan**
 
@@ -234,7 +234,7 @@ Wall-clock check: no two counted contacts overlap in time.
 
 > Summarize the documented symptom course during the episode and the reason for the additional individual contact on January 19. Which symptom assessments are distinct, and what conclusions about progress can and cannot be supported?
 
-*Resolved to* `progress(mrn='HG-M042', start='2026-01-05', end='2026-01-30')` *in 2 ms (router: rules).*
+*Resolved to* `progress(mrn='HG-M042', start='2026-01-05', end='2026-01-30')` *in 3 ms (router: rules).*
 
 > **Routing warning:** the question does not name a patient; answered for the only patient in the collection (HG-M042)
 
