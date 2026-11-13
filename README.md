@@ -7,11 +7,11 @@ traces back to a character span in a source document.
 Python 3.11+, standard library only. Nothing to install.
 
 ```bash
-python -m backbone build documents          # ingest + reconcile (first run)
-python -m backbone answer questions.json    # the five development questions
-python -m backbone ask "How many group sessions did Rowan attend in week 2?"
-python -m backbone trace "HG-M042|HG-E110"  # follow one event to its sources
-python -m backbone verify                   # integrity checks + 107 tests
+python -m clinledger build documents          # ingest + reconcile (first run)
+python -m clinledger answer questions.json    # answer a saved question set
+python -m clinledger ask "How many group sessions did Rowan attend in week 2?"
+python -m clinledger trace "HG-M042|HG-E110"  # follow one event to its sources
+python -m clinledger verify                   # integrity checks + 107 tests
 ```
 
 
@@ -75,7 +75,7 @@ question type is answered with a stated warning.
 ### Adding documents later
 
 ```bash
-python -m backbone add documents/new_note.txt   # ~10 ms: extract + reconcile that patient only
+python -m clinledger add documents/new_note.txt   # ~10 ms: extract + reconcile that patient only
 ```
 
 Identity is the SHA-256 of the *normalized* text (receipt stamps, export
@@ -87,18 +87,21 @@ alongside them. Directory ingest reads any text-bearing extension, not only
 
 ---
 
-## 2. Answers to the five development questions
+## 2. Worked examples
 
-Full output with sources: [`out/answers.md`](out/answers.md) (machine-readable in
-`out/answers.json`). Reproduce with `python -m backbone answer questions.json`.
+Five questions over the sample records in [`documents/`](documents), chosen
+because each one breaks a different way if the abstraction is naive. The saved
+set is [`questions.json`](questions.json); full output with sources is in
+[`out/answers.md`](out/answers.md), machine-readable in `out/answers.json`.
+Reproduce with `python -m clinledger answer questions.json`.
 
-**DEV-01** — 12 therapy sessions on 11 distinct days: 5 individual, 5 group,
+**Counting sessions** — 12 therapy sessions on 11 distinct days: 5 individual, 5 group,
 2 family. Eight encounters are excluded with a stated reason. The January 27
 no-show is the interesting one: an unsigned template note says "Patient attended
 the full session" and a charge for one group session was posted; both are
 rejected against the signed register.
 
-**DEV-02** — 585–595 minutes (9.75–9.92 hours).
+**Minutes, by week** — 585–595 minutes (9.75–9.92 hours).
 
 | week (Mon–Sun) | therapy days | minutes | calculation |
 |---|---:|---:|---|
@@ -111,14 +114,14 @@ Not settled: the January 26 encounter has two signed notes from two
 participating clinicians, 50 minutes (09:00–09:50) and 40 minutes (09:10–09:50),
 neither referring to the other. Kept as bounds.
 
-**DEV-03** — Goal read from the plan: ≥3 therapy days **and** ≥150
+**Did care meet the plan?** — goal read from the plan: ≥3 therapy days **and** ≥150
 patient-present minutes per Monday–Sunday week, counting individual, group and
 family therapy. Week 1 `NOT_MET` (140 < 150), week 2 `NOT_MET` (2 days, 120
 min), week 3 `MET`, week 4 `CANNOT_DETERMINE` — 150 falls inside 145–155. The
 system also reports what would settle it: an addendum from either author naming
 the other's value, or a check-in timestamp for the start of the contact.
 
-**DEV-04** — January 19: two therapy contacts, 90 patient minutes (group 60 +
+**Reconstructing two days** — January 19: two therapy contacts, 90 patient minutes (group 60 +
 individual 30). The group roster was signed at 11:30 departure; a January 20
 correction naming that roster and field sets it to 11:15; a copy of the
 *original* roster received January 26 still reads 11:30 and is marked
@@ -126,7 +129,7 @@ superseded. 60 = (10:00→11:15) minus the 10:45–11:00 break. January 21: one
 contact, 45 minutes — 13:00–13:20 plus 13:30–13:55, dropped connection excluded.
 The two platform call ids are evidence on one encounter, not two encounters.
 
-**DEV-05** — Three distinct PHQ-9 administrations: 18 (Jan 5), 14 (Jan 16, form
+**Symptom course** — three distinct PHQ-9 administrations: 18 (Jan 5), 14 (Jan 16, form
 HG-Q116), 10 (Jan 30, item 9 = 0). The January 26 batch import is a second
 record of the January 16 administration and collapses onto it. The additional
 January 19 contact is explained by the record itself: *"This visit was added
@@ -144,7 +147,7 @@ therapy minutes.
 
 **How should conflicting records be resolved?**
 [`docs/experiment-conflict-policy.md`](docs/experiment-conflict-policy.md),
-`python -m backbone experiment`. Both policies are real code paths selected by
+`python -m clinledger experiment`. Both policies are real code paths selected by
 `--policy`, run over the same corpus with the same extractor. The harness does
 not know which encounter they will disagree about: it diffs the two event tables
 to find where they diverge.
@@ -205,7 +208,7 @@ lists, driven by what it surfaces.
 
 ## 5. Measured performance
 
-`python -m backbone bench` → [`out/benchmark.json`](out/benchmark.json).
+`python -m clinledger bench` → [`out/benchmark.json`](out/benchmark.json).
 31 documents, 48.9 KiB of source text, on Windows 11 / Python 3.13.5.
 
 | | measured |
@@ -258,7 +261,7 @@ queries unchanged, ~34 s collection-wide queries as written today.
 
 ## 7. Models, assistance, runtime and cost
 
-**No model is used on `main`.** `python -m backbone build documents` makes zero
+**No model is used on `main`.** `python -m clinledger build documents` makes zero
 model calls, costs $0.00, and is byte-reproducible across runs. Every number in
 this README and in `out/answers.md` was produced that way.
 
@@ -281,7 +284,7 @@ build, ~4 s for 107 tests, 0.3 s benchmark, 0.2 s experiment.
 ## 8. Layout
 
 ```
-backbone/
+clinledger/
   schema.sql        documents, claims, events, event_claims, decisions, ...
   normalize.py      normalization for identity, date parsing and validation
   taxonomy.py       service synonyms, document classes, authority tables
@@ -319,7 +322,7 @@ out/                answers.md/.json, abstraction.json, benchmark.json,
   the plan's own wording; Sunday–Saturday is available via
   `compliance(..., scheme="week_sun_sat")`. The January 26–30 week is partial at
   the episode end and is flagged rather than prorated, because the documents do
-  not say to prorate. Prorating would change the DEV-03 verdict.
+  not say to prorate. Prorating would change that week's verdict.
 - **One patient in the supplied data.** Nothing is keyed to that: the patient is
   discovered from document headers, every query takes a patient parameter, a
   per-patient question with no patient named fans out across all of them, and

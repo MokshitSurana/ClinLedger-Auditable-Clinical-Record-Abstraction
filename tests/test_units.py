@@ -4,10 +4,10 @@ from __future__ import annotations
 import pathlib
 import unittest
 
-from backbone import intervals as iv
-from backbone import normalize as nz
-from backbone.extract import rules
-from backbone.taxonomy import canonical_service, classify_document
+from clinledger import intervals as iv
+from clinledger import normalize as nz
+from clinledger.extract import rules
+from clinledger.taxonomy import canonical_service, classify_document
 
 
 class Intervals(unittest.TestCase):
@@ -161,9 +161,9 @@ class RouterSafety(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        from backbone.ingest import ingest_dir
-        from backbone import reconcile
-        from backbone.store import Store
+        from clinledger.ingest import ingest_dir
+        from clinledger import reconcile
+        from clinledger.store import Store
         for s in ("", "-wal", "-shm"):
             q = pathlib.Path("out/test_router.db" + s)
             if q.exists():
@@ -179,15 +179,15 @@ class RouterSafety(unittest.TestCase):
     def test_no_patient_name_is_hardcoded_anywhere_in_the_package(self):
         # The brief forbids encoding patient facts. The only place a name from
         # the corpus may appear is the test suite.
-        import backbone
-        root = pathlib.Path(backbone.__file__).parent
+        import clinledger
+        root = pathlib.Path(clinledger.__file__).parent
         for f in sorted(root.rglob("*.py")) + [root / "schema.sql"]:
             text = f.read_text(encoding="utf-8").lower()
             for name in ("rowan", "mercer", "casey", "hg-m042", "hg-e1"):
                 self.assertNotIn(name, text, f"{f.name} contains {name!r}")
 
     def test_unknown_patient_is_refused_not_silently_redirected(self):
-        from backbone import router
+        from clinledger import router
         res = router.answer(self.st, "How many sessions did Dana attend?")
         self.assertIn("error", res)
         self.assertIn("Dana", res["error"])
@@ -195,13 +195,13 @@ class RouterSafety(unittest.TestCase):
         self.assertIn("error", res)
 
     def test_unmatched_question_warns_instead_of_guessing_silently(self):
-        from backbone import router
+        from clinledger import router
         res = router.answer(self.st, "wibble wobble")
         self.assertTrue(any("no question type matched" in w
                             for w in res["route"]["warnings"]))
 
     def test_collection_question_is_not_scoped_to_one_patient(self):
-        from backbone import router
+        from clinledger import router
         plan = router.route(self.st,
                             "Which patients had two consecutive weeks below?")
         self.assertEqual(plan["function"], "consecutive_below")
@@ -213,7 +213,7 @@ class RouterSafety(unittest.TestCase):
 
     def test_all_five_dev_questions_route_without_a_patient_error(self):
         import json
-        from backbone import router
+        from clinledger import router
         qs = json.loads(pathlib.Path("questions.json").read_text(encoding="utf-8"))
         for item in qs:
             res = router.answer(self.st, item["question"])
@@ -248,9 +248,9 @@ class WeeklyCoverage(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        from backbone.ingest import ingest_path
-        from backbone import reconcile
-        from backbone.store import Store
+        from clinledger.ingest import ingest_path
+        from clinledger import reconcile
+        from clinledger.store import Store
         import tempfile
         for s in ("", "-wal", "-shm"):
             q = pathlib.Path("out/test_weeks.db" + s)
@@ -271,7 +271,7 @@ class WeeklyCoverage(unittest.TestCase):
         shutil.rmtree(cls.tmp, ignore_errors=True)
 
     def test_every_week_in_the_episode_appears(self):
-        from backbone import queries as Q
+        from clinledger import queries as Q
         v = Q.minutes(self.st, "HG-M555", "2026-03-02", "2026-03-29")["value"]
         self.assertEqual([w["week_start"] for w in v["weeks"]],
                          ["2026-03-02", "2026-03-09", "2026-03-16", "2026-03-23"])
@@ -280,7 +280,7 @@ class WeeklyCoverage(unittest.TestCase):
         self.assertEqual(by["2026-03-09"]["therapy_days"], [0, 0])
 
     def test_empty_weeks_are_not_met_and_count_as_consecutive(self):
-        from backbone import queries as Q
+        from clinledger import queries as Q
         comp = Q.compliance(self.st, "HG-M555", "2026-03-02", "2026-03-29")["value"]
         got = {w["week_start"]: w["status"] for w in comp["weeks"]}
         self.assertEqual(got["2026-03-02"], "NOT_MET")   # 40 min < 150
@@ -297,7 +297,7 @@ class VerdictPrecedence(unittest.TestCase):
     """A definite failure on one required metric settles the week."""
 
     def test_not_met_outranks_cannot_determine(self):
-        from backbone import queries as Q
+        from clinledger import queries as Q
         # the goal is a conjunction: days AND minutes
         checks = [{"metric": "therapy_days", "status": Q.BELOW},
                   {"metric": "therapy_minutes", "status": Q.UNKNOWN}]
@@ -309,9 +309,9 @@ class VerdictPrecedence(unittest.TestCase):
     def test_rowan_week_four_is_still_undetermined(self):
         # the precedence change must not alter the dev answers: week 4 has no
         # definite failure, so it stays CANNOT_DETERMINE
-        from backbone.ingest import ingest_dir
-        from backbone import queries as Q, reconcile
-        from backbone.store import Store
+        from clinledger.ingest import ingest_dir
+        from clinledger import queries as Q, reconcile
+        from clinledger.store import Store
         for s in ("", "-wal", "-shm"):
             q = pathlib.Path("out/test_verdict.db" + s)
             if q.exists():
@@ -330,8 +330,8 @@ class SourceHygiene(unittest.TestCase):
     """Guards for two kinds of damage that are invisible on screen."""
 
     def _sources(self):
-        import backbone
-        root = pathlib.Path(backbone.__file__).parent
+        import clinledger
+        root = pathlib.Path(clinledger.__file__).parent
         return sorted(root.rglob("*.py")) + sorted(
             pathlib.Path("tests").rglob("*.py"))
 

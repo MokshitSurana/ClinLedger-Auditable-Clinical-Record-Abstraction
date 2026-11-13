@@ -14,10 +14,10 @@ import json
 import pathlib
 import unittest
 
-from backbone import queries as Q
-from backbone import reconcile
-from backbone.ingest import ingest_dir, ingest_path
-from backbone.store import Store
+from clinledger import queries as Q
+from clinledger import reconcile
+from clinledger.ingest import ingest_dir, ingest_path
+from clinledger.store import Store
 
 DOCS = pathlib.Path("documents")
 MRN = "HG-M042"
@@ -226,7 +226,7 @@ class Restart(unittest.TestCase):
         st2 = Store("out/test_restart.db")
         v = Q.compliance(st2, MRN, "2026-01-05", "2026-01-30")["value"]
         self.assertEqual(len(v["weeks"]), 4)
-        from backbone import router
+        from clinledger import router
         res = router.answer(st2, "How many group therapy sessions did Rowan attend?")
         self.assertEqual(res["result"]["value"]["by_service_type"]["group_therapy"], 5)
         st2.close()

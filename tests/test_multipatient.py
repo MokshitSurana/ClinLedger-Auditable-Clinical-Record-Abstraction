@@ -11,10 +11,10 @@ import shutil
 import tempfile
 import unittest
 
-from backbone import queries as Q
-from backbone import reconcile
-from backbone.ingest import TEXT_SUFFIXES, ingest_dir, ingest_path
-from backbone.store import Store
+from clinledger import queries as Q
+from clinledger import reconcile
+from clinledger.ingest import TEXT_SUFFIXES, ingest_dir, ingest_path
+from clinledger.store import Store
 
 HDR = "Harbor Grove Behavioral Health"
 
@@ -236,7 +236,7 @@ class PresenceByContext(unittest.TestCase):
     """#4 A disposition field must outrank a passing mention."""
 
     def test_status_field_beats_a_cancellation_mentioned_elsewhere(self):
-        from backbone.extract.rules import _presence_detail
+        from clinledger.extract.rules import _presence_detail
         p, cue, _, _ = _presence_detail(
             "Status: Attended. A cancellation notice was sent to other members.",
             "Rowan")
@@ -244,21 +244,21 @@ class PresenceByContext(unittest.TestCase):
         self.assertEqual(cue, "attended")
 
     def test_a_sentence_about_the_patient_beats_a_bare_mention(self):
-        from backbone.extract.rules import _presence_detail
+        from clinledger.extract.rules import _presence_detail
         p, _, _, _ = _presence_detail(
             "Rowan was present from opening through closing. The January 15 "
             "cancellation is filed separately.", "Rowan")
         self.assertEqual(p, "present")
 
     def test_a_real_cancellation_is_still_read(self):
-        from backbone.extract.rules import _presence_detail
+        from clinledger.extract.rules import _presence_detail
         p, _, _, _ = _presence_detail(
             "The coping skills group scheduled for January 15 is cancelled by "
             "the clinic because of staff illness.", "Rowan")
         self.assertEqual(p, "cancelled")
 
     def test_equal_authority_conflict_asserts_nothing(self):
-        from backbone.extract.rules import _presence_detail
+        from clinledger.extract.rules import _presence_detail
         p, cue, _, amb = _presence_detail(
             "The patient attended. The patient cancellation was recorded.",
             "Rowan")
