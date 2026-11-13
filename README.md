@@ -275,12 +275,6 @@ cache is what makes an abstraction reproducible at all.
 **Runtime to produce everything on `main`:** a few seconds of compute — 0.16 s
 build, ~4 s for 107 tests, 0.3 s benchmark, 0.2 s experiment.
 
-**Coding assistance:** written with Claude Code (Opus 5). About 4 hours for
-`main`, plus roughly 5 further hours of review passes whose output is on the
-`post-timebox` branch. The hand-computed ledger in `tests/test_gold.py` was
-worked out by reading all 31 documents before any code was written; those
-expected values live only in the tests and are never imported by the pipeline —
-it has to derive them from the documents.
 
 ---
 
