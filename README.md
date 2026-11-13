@@ -14,20 +14,6 @@ python -m backbone trace "HG-M042|HG-E110"  # follow one event to its sources
 python -m backbone verify                   # integrity checks + 107 tests
 ```
 
-### Scope note
-
-The brief suggests 2–5 hours. `main` is that submission: the pipeline, the
-tests, the five answers, one tested design decision, and the benchmark — about
-4,650 lines of code and 1,400 of tests.
-
-Work done **after** the time box, in later review passes, is on the
-**`post-timebox`** branch and deliberately not here: an optional model-backed
-extractor with a Groq/Anthropic provider layer, a rules-vs-model comparison
-harness, a synthetic multi-patient scaling harness, and a long design document.
-Two findings from that branch are cited in §4 and §6 below, because they change
-what I would claim about this design. Roughly 5 further hours.
-
----
 
 ## 1. Approach
 
